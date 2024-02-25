@@ -1,11 +1,32 @@
+/* Button styling */
 .rotate-button {
-    opacity: 1 !important;
-    float: right;
-    font-size: 1.5rem !important;
-    padding: 2px !important;
-    opacity: 0.6 !important;
-  }
-  
-  .rotate-button:hover {
-    opacity: 1;
-  }
+  float: left;
+  font-size: 1.5rem !important;
+  opacity: 0.6 !important;
+  padding: 2px !important;
+}
+
+.rotate-button:hover {
+  opacity: 1 !important;
+}
+
+.box-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.5
+  ); /* Semi-transparent background, can only be seen when box is red */
+}
+
+/* Box styling */
+.box-shape {
+  outline: 2px solid black;
+  outline-offset: -1px;
+  position: absolute;
+  transform: translate(-50%, -50%); /* Center the box */
+  transform-origin: center; /* Rotate around the center */
+}

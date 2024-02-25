@@ -2,7 +2,7 @@ import { useSettings } from "../context/SettingsContext";
 import { Box } from "../models/box";
 
 function BoxesStateOutput(boxes: Box[]) {
-  let { settings, setSettings } = useSettings();
+  let { settings } = useSettings();
 
   const boxOutput = boxes.map(
     (box) =>
@@ -10,20 +10,21 @@ function BoxesStateOutput(boxes: Box[]) {
   );
   const boxOutputString = `[${boxOutput.join(", ")}]`;
   return (
-    <div
-      className="d-flex flex-grow-1"
-      style={{
-        position: "relative",
-        background: "lightgrey",
-        outline: "2px solid black",
-        outlineOffset: "-2px",
-        width: "100%", // Take full width of the container
-        height: "100%",
-        minHeight: "100px", // Minimum height for visibility
-        minWidth: "100px", // Minimum height for visibility
-      }}
-    >
-      {boxOutputString}
+    <div className="container">
+      <div className="row">
+        <div className="col">
+          <div
+            className="p-3 bg-light border rounded"
+            style={{
+              whiteSpace: "pre-wrap", // Ensures line breaks and spaces are respected
+              maxHeight: "400px",
+              overflowY: "auto", // Allows scrolling within the box if content is too long
+            }}
+          >
+            {boxOutputString}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

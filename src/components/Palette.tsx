@@ -5,7 +5,7 @@ import BoxComponent from "./Box";
 
 interface PaletteProps {
   palette: PaletteType;
-  updateBoxPosition: (id: string, newX: number, newY: number) => void; // Method to update the box's position in the state
+  updateBoxPosition: (id: string, newX: number, newY: number) => void;
   updateBoxRotation: (id: string, newRotation: number) => void;
   deleteBox: (id: string) => void;
 }
@@ -16,17 +16,20 @@ function Palette({
   updateBoxRotation,
   deleteBox,
 }: PaletteProps) {
-  let { settings, setSettings } = useSettings();
+  let { settings } = useSettings();
 
   return (
     <div
+      className="d-flex flex-wrap position-relative"
       style={{
-        flex: "none",
-        position: "relative",
-        width: settings.paletteWidth,
-        height: settings.paletteHeight,
-        background: "lightgrey",
-        outline: "2px solid lightgrey",
+        // Palette dimensions
+        width: `${settings.paletteWidth}px`,
+        height: `${settings.paletteHeight}px`,
+
+        background: "#f8f9fa", // Bootstrap's light grey background
+        border: "2px solid #dee2e6", // Bootstrap's grey border for contrast
+        padding: "10px",
+        boxSizing: "border-box", // Ensures padding does not affect overall dimensions
       }}
     >
       {palette.boxes.map((box) => (

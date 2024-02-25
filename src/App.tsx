@@ -2,19 +2,14 @@ import { useState } from "react";
 import Palette from "./components/Palette";
 import BoxesStateOutput from "./components/BoxesStateOutput";
 import Menu from "./components/Menu";
-// import { Palette as PaletteType } from "./models/palette";
 import { Box } from "./models/box";
 import { useSettings } from "./context/SettingsContext";
 
 function App() {
   const { settings } = useSettings();
 
+  // Room for improvement: I could've moved the boxes into the settings model
   let [boxes, setBoxes] = useState<Box[]>([]);
-
-  function generateUniqueId() {
-    // Generate a unique ID based on the current timestamp and a random number
-    return `box-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-  }
 
   function addBox() {
     const newBox: Box = {
@@ -24,6 +19,11 @@ function App() {
       r: 0,
     };
     setBoxes([...boxes, newBox]);
+  }
+
+  // Generate a unique ID based on the current timestamp and a random number
+  function generateUniqueId() {
+    return `box-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
   }
 
   const deleteBox = (id: string) => {
@@ -55,12 +55,21 @@ function App() {
   };
 
   return (
-    <div className="container-fluid d-flex flex-column vh-100">
-      <div className="row flex-grow-1">
-        <Menu addBox={addBox} deleteAllBoxes={deleteAllBoxes} boxes={boxes} />
+    <div className="container-fluid d-flex flex-column">
+      {/* Menu Row */}
+      <div className="d-flex flex-wrap align-items-center">
+        <div className="p-2">
+          <Menu addBox={addBox} deleteAllBoxes={deleteAllBoxes} boxes={boxes} />
+        </div>
+        {/* Output Area */}
+        <div className="d-flex justify-content-center align-items-center p-2">
+          {BoxesStateOutput(boxes)}
+        </div>
       </div>
-      <div className="row flex-grow-1">
-        <div className="col border">
+
+      {/* Palette Row */}
+      <div className="row flex-grow-1 overflow-hidden">
+        <div className="col p-2 border">
           <Palette
             palette={{
               boxes: boxes,
@@ -70,12 +79,6 @@ function App() {
             deleteBox={deleteBox}
           />
         </div>
-        {/* <div className="col border">
-          <Menu addBox={addBox} boxes={boxes} />
-        </div> */}
-      </div>
-      <div className="row flex-grow-1">
-        <div className="col border">{BoxesStateOutput(boxes)}</div>
       </div>
     </div>
   );

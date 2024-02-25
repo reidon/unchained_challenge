@@ -10,7 +10,6 @@ interface MenuComponentProps {
 function Menu(props: MenuComponentProps) {
   let { settings, setSettings } = useSettings();
 
-  // Function to handle changing the box width
   const handleBoxWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // Ensure the value is within the allowed range
     const newWidth = Math.max(
@@ -23,7 +22,6 @@ function Menu(props: MenuComponentProps) {
     }));
   };
 
-  // Function to handle changing the box height
   const handleBoxHeightChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -41,11 +39,6 @@ function Menu(props: MenuComponentProps) {
   const handlePaletteHeightChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // Ensure the value is within the allowed range
-    // const newHeight = Math.max(
-    //   0,
-    //   Math.min(settings.paletteHeight, parseInt(event.target.value, 10) || 0)
-    // );
     const newHeight = parseInt(event.target.value, 10);
     setSettings((currentSettings) => ({
       ...currentSettings,
@@ -56,11 +49,6 @@ function Menu(props: MenuComponentProps) {
   const handlePaletteWidthChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // Ensure the value is within the allowed range
-    // const newHeight = Math.max(
-    //   0,
-    //   Math.min(settings.paletteHeight, parseInt(event.target.value, 10) || 0)
-    // );
     const newWidth = parseInt(event.target.value, 10);
     setSettings((currentSettings) => ({
       ...currentSettings,
@@ -69,82 +57,94 @@ function Menu(props: MenuComponentProps) {
   };
 
   return (
-    <div
-      className="d-flex flex-grow-1"
-      style={{
-        position: "relative",
-      }}
-    >
-      <div className="btn-group" role="group" aria-label="Settings Buttons">
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={props.addBox}
+    <div className="container my-3">
+      <div className="d-flex flex-wrap justify-content-start">
+        {/* Buttons */}
+        <div
+          className="btn-group mb-4 mt-4 me-4"
+          role="group"
+          aria-label="Settings Buttons"
         >
-          Add Box
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={props.deleteAllBoxes}
-        >
-          Delete All
-        </button>
-        {/* <button type="button" className="btn btn-primary">
-          Auto
-        </button> */}
-      </div>
-      <div className="input-group">
-        <span className="input-group-text">Box Width</span>
-        <input
-          type="number"
-          className="form-control"
-          placeholder="Box Width"
-          aria-label="Box Width"
-          defaultValue={settings.boxWidth}
-          onChange={handleBoxWidthChange}
-          min={0}
-          max={settings.paletteWidth} // Ensure boxWidth cannot exceed paletteWidth
-        />
-      </div>
-      <div className="input-group">
-        <span className="input-group-text">Box Height</span>
-        <input
-          type="number"
-          className="form-control"
-          placeholder="Box Height"
-          aria-label="Box Height"
-          defaultValue={settings.boxHeight}
-          onChange={handleBoxHeightChange}
-          min={0}
-          max={settings.paletteHeight} // Ensure boxHeight cannot exceed paletteHeight
-        />
-      </div>
-      <div className="input-group">
-        <span className="input-group-text">Palette Width</span>
-        <input
-          type="number"
-          className="form-control"
-          placeholder="Palette Width"
-          aria-label="Palette Width"
-          defaultValue={settings.paletteWidth}
-          onChange={handlePaletteWidthChange}
-          min={0}
-          //max={settings.paletteWidth} // Ensure boxWidth cannot exceed paletteWidth
-        />
-      </div>
-      <div className="input-group">
-        <span className="input-group-text">Palette Height</span>
-        <input
-          type="number"
-          className="form-control"
-          placeholder="Palette Height"
-          aria-label="Palette Height"
-          defaultValue={settings.paletteHeight}
-          onChange={handlePaletteHeightChange}
-          min={0}
-          //max={settings.paletteWidth} // Ensure boxWidth cannot exceed paletteWidth
-        />
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={props.addBox}
+          >
+            Add Box
+          </button>
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={props.deleteAllBoxes}
+          >
+            Delete All
+          </button>
+        </div>
+        {/* Input fields */}
+        <div className="d-flex flex-wrap">
+          <div className="row g-2">
+            {/* Box input fields */}
+            <div className="col-md-6 mt-3">
+              <div className="input-group mb-3">
+                <span className="input-group-text">Box Width</span>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Box Width"
+                  aria-label="Box Width"
+                  defaultValue={settings.boxWidth}
+                  onChange={handleBoxWidthChange}
+                  min={0}
+                  max={settings.paletteWidth}
+                />
+                <span className="input-group-text">mm</span>
+              </div>
+              <div className="input-group mb-3">
+                <span className="input-group-text">Box Height</span>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Box Height"
+                  aria-label="Box Height"
+                  defaultValue={settings.boxHeight}
+                  onChange={handleBoxHeightChange}
+                  min={0}
+                  max={settings.paletteHeight}
+                />
+                <span className="input-group-text">mm</span>
+              </div>
+            </div>
+            {/* Palette input fields */}
+            <div className="col-md-6 mt-3">
+              <div className="input-group mb-3">
+                <span className="input-group-text">Palette Width</span>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Palette Width"
+                  aria-label="Palette Width"
+                  defaultValue={settings.paletteWidth}
+                  onChange={handlePaletteWidthChange}
+                  min={0}
+                />
+                <span className="input-group-text">mm</span>
+              </div>
+              <div className="input-group mb-3">
+                <span className="input-group-text">Palette Height</span>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Palette Height"
+                  aria-label="Palette Height"
+                  defaultValue={settings.paletteHeight}
+                  onChange={handlePaletteHeightChange}
+                  min={0}
+                />
+                <span className="input-group-text">mm</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

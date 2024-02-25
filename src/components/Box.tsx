@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Box } from "../models/box"; // Adjust the import path as necessary
 import { Palette } from "../models/palette";
 import { useSettings } from "../context/SettingsContext";
@@ -13,20 +13,21 @@ interface BoxComponentProps {
 }
 
 function BoxComponent(props: BoxComponentProps) {
-  let { settings, setSettings } = useSettings();
-  const { box, onMove, updateBoxRotation, palette } = props;
+  let { settings } = useSettings();
+  const { box, onMove } = props;
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
   const boxes = props.palette.boxes;
-  //let color: string = "black";
+
+  // Check if box has been rotated 90 or 270 degrees
+  const isPerpendicular: (r: number) => boolean = (r: number) => {
+    return r % 180 === 90 ? true : false;
+  };
 
   const checkCollision = (otherBox: Box, nextX: number, nextY: number) => {
     const currentBoxIsPerpendicular = isPerpendicular(box.r);
     const otherBoxIsPerpendicular = isPerpendicular(otherBox.r);
-
-    console.log("currentBoxIsPerpendicular " + currentBoxIsPerpendicular);
-    console.log("otherBoxIsPerpendicular " + otherBoxIsPerpendicular);
 
     // Adjusted dimensions based on perpendicular state
     const currentBoxWidth = currentBoxIsPerpendicular
@@ -47,17 +48,61 @@ function BoxComponent(props: BoxComponentProps) {
     const currentBoxTopLeftX = nextX - currentBoxWidth / 2;
     const currentBoxTopLeftY = nextY - currentBoxHeight / 2;
 
-    // Calculate the top-left corner of the other box based on its center position
     const otherBoxTopLeftX = otherBox.x - otherBoxWidth / 2;
     const otherBoxTopLeftY = otherBox.y - otherBoxHeight / 2;
 
-    // Collision detection logic using top-left corners
+    // Collision detection logic
     return (
       currentBoxTopLeftX < otherBoxTopLeftX + otherBoxWidth &&
       currentBoxTopLeftX + currentBoxWidth > otherBoxTopLeftX &&
       currentBoxTopLeftY < otherBoxTopLeftY + otherBoxHeight &&
       currentBoxTopLeftY + currentBoxHeight > otherBoxTopLeftY
     );
+  };
+
+  // Event listeners for drag and drop
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    } else {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, startX, startY, onMove, box.id]); // Dependency array
+
+  // Filter out the currentBox by id and, then check collision with the remaining boxes
+  const otherBoxes = useMemo(
+    () =>
+      boxes.filter(
+        (otherBox) =>
+          otherBox.id !== box.id &&
+          Math.abs(otherBox.x - box.x) <= settings.boxWidth && // Assuming you want to check if it's within +/- 100 units
+          Math.abs(otherBox.y - box.y) <= settings.boxHeight
+      ),
+    [boxes, box.id, box.x, box.y, settings.boxWidth, settings.boxHeight]
+  );
+
+  // Returns box color based on collision
+  const boxColor = useMemo(() => {
+    const collisionDetected = otherBoxes.some((otherBox) =>
+      checkCollision(otherBox, box.x, box.y)
+    );
+    return collisionDetected ? "red" : "white";
+  }, [otherBoxes, box.x, box.y]);
+
+  const handleBoxRotation = () => {
+    const newRotation = (box.r + 90) % 360;
+    props.updateBoxRotation(box.id, newRotation);
+  };
+
+  const handleBoxDeletion = () => {
+    props.deleteBox(box.id);
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -101,14 +146,12 @@ function BoxComponent(props: BoxComponentProps) {
       const deltaX = Math.abs(newX - otherBoxX);
       const deltaY = Math.abs(newY - otherBoxY);
 
-      // Snap X axis
+      // Snap X and Y axis
       if (deltaX < snapThreshold) {
-        newX = otherBoxX; // Adjust newX to align with the otherBox's x position
+        newX = otherBoxX;
       }
-
-      // Snap Y axis
       if (deltaY < snapThreshold) {
-        newY = otherBoxY; // Adjust newY to align with the otherBox's y position
+        newY = otherBoxY;
       }
     });
     onMove(box.id, newX, newY);
@@ -190,93 +233,44 @@ function BoxComponent(props: BoxComponentProps) {
     onMove(box.id, snapX, snapY);
   };
 
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
-    } else {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [isDragging, startX, startY, onMove, box.id]);
-
-  // Filter out the currentBox by id, then check collision with the remaining boxes
-  const otherBoxes = boxes.filter((otherBox) => otherBox.id !== box.id);
-  function boxColor(): string {
-    const collisionDetected = otherBoxes.some((otherBox) => {
-      if (checkCollision(otherBox, box.x, box.y)) {
-        console.log(`Collision detected with box id: ${otherBox.id}`);
-        return true;
-        // Handle collision here
-      } else {
-        return false;
-      }
-    });
-    return collisionDetected ? "red" : "white";
-  }
-
-  const handleBoxRotation = () => {
-    const newRotation = (box.r + 90) % 360;
-    props.updateBoxRotation(box.id, newRotation);
-  };
-
-  const handleBoxDeletion = () => {
-    props.deleteBox(box.id);
-  };
-
-  const isPerpendicular: (r: number) => boolean = (r: number) => {
-    return r % 180 === 90 ? true : false;
-  };
+  // Swaps height and width if perdendicular
   const boxWidth = isPerpendicular(box.r)
     ? settings.boxHeight
     : settings.boxWidth;
   const boxHeight = isPerpendicular(box.r)
     ? settings.boxWidth
     : settings.boxHeight;
+
   return (
     <div
       className="box-shape"
       style={{
-        position: "absolute",
-        left: box.x,
-        top: box.y,
-        width: boxWidth,
-        height: boxHeight,
-        background: boxColor(),
-        outline: "2px solid black",
-        outlineOffset: "-1px",
-        transform: `translate(-50%, -50%)`, // Translate to center before rotating
-        transformOrigin: "center", // Ensures the box rotates around its center
+        left: `${box.x}px`,
+        top: `${box.y}px`,
+        width: `${boxWidth}px`,
+        height: `${boxHeight}px`,
+        background: boxColor,
       }}
       onMouseDown={handleMouseDown}
     >
-      <div>
+      <div className="p-2" style={{ float: "left" }}>
+        <span>
+          {box.x}, {settings.paletteHeight - box.y}, {box.r}{" "}
+        </span>
+      </div>
+      <div className="box-controls">
         <button
           type="button"
           className="btn-close"
           aria-label="Close"
           onClick={handleBoxDeletion}
-          style={{
-            float: "right",
-            padding: "12px",
-          }}
+          style={{ padding: "12px" }}
         ></button>
         <button
           type="button"
           className="btn btn-sm bi-arrow-clockwise rotate-button"
-          aria-label="Close"
+          aria-label="Rotate"
           onClick={handleBoxRotation}
-          // style={{
-          //   float: "right",
-          //   fontSize: "1.5rem",
-          //   padding: "2px",
-          //   opacity: "0.6",
-          // }}
         ></button>
       </div>
     </div>
