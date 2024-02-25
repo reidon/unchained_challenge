@@ -1,5 +1,5 @@
+import { Box } from "./box";
+
 export interface Palette {
-    // Size
-    width: number;
-    height: number;
+    boxes: Box[];
   }

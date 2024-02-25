@@ -5,6 +5,4 @@ export interface Box {
     x: number;
     y: number;
     r: number;
-    width: number;
-    height: number;
   }
