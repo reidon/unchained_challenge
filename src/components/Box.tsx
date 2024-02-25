@@ -82,8 +82,8 @@ function BoxComponent(props: BoxComponentProps) {
       boxes.filter(
         (otherBox) =>
           otherBox.id !== box.id &&
-          Math.abs(otherBox.x - box.x) <= settings.boxWidth && // Assuming you want to check if it's within +/- 100 units
-          Math.abs(otherBox.y - box.y) <= settings.boxHeight
+          (Math.abs(otherBox.x - box.x) <= settings.boxWidth ||
+            Math.abs(otherBox.y - box.y) <= settings.boxHeight)
       ),
     [boxes, box.id, box.x, box.y, settings.boxWidth, settings.boxHeight]
   );
